@@ -240,7 +240,7 @@ fn build_from_src(features: Features, _out_dir: &str) {
         .define("GLFW_BUILD_EXAMPLES", "OFF")
         .define("GLFW_BUILD_TESTS", "OFF")
         .define("GLFW_BUILD_DOCS", "OFF")
-        .define("CMAKE_INSTALL_LIBDIR", "lib");
+        .define("CMAKE_INSTALL_LIBDIR", "lib64");
 
     // x11/wayland work on all sorts of OSes.
     if features.os == TargetOs::Linux || features.os == TargetOs::Others {
@@ -256,14 +256,14 @@ fn build_from_src(features: Features, _out_dir: &str) {
         }
     }
     if features.static_link {
-        config.define("BUILD_SHARED_LIBS", "OFF");
+        config.define("GLFW_LIBRARY_TYPE", "STATIC");
     } else {
-        config.define("BUILD_SHARED_LIBS", "ON");
+        config.define("GLFW_LIBRARY_TYPE", "SHARED");
     }
     let dst_dir = config.build();
     println!(
         "cargo:rustc-link-search=native={}",
-        dst_dir.join("lib").display()
+        dst_dir.join("lib64").display()
     );
     if !features.static_link && features.os == TargetOs::Win {
         println!(
