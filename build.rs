@@ -35,9 +35,9 @@ fn main() {
         return;
     }
 
-    // not src build and not prebuilt-libs => use pkg-config
-    let pkgconfig_build = !features.src_build && !features.prebuilt_libs;
+    let pkgconfig_build;
     if features.prebuilt_libs {
+        pkgconfig_build = false;
         download_libs(features, &out_dir);
     }
     else {
@@ -48,16 +48,24 @@ fn main() {
             .atleast_version("3.4.0")
             .probe("glfw3")
         {
-            Ok(lib) => println!("pkg-config found glfw library {lib:#?}"),
+            Ok(lib) => {
+                println!("pkg-config found glfw library {lib:#?}");
+                pkgconfig_build = true;
+            },
             Err(e) => {
                 // on failure try to build if enabled
+                pkgconfig_build = false;
                 if features.src_build {
                     #[cfg(feature = "src-build")]
                     build_from_src(features, &out_dir);
                 }
+                else {
+                    panic!("pkg-config failed to find glfw library: {e}");
+                }
             }
         }
     }
+
     // pkg-config takes care of emitting linker flags, so we only explicitly
     // need to emit them if we aren't using pkg-config.
     if !pkgconfig_build {
