@@ -239,7 +239,9 @@ fn build_from_src(features: Features, _out_dir: &str) {
     config
         .define("GLFW_BUILD_EXAMPLES", "OFF")
         .define("GLFW_BUILD_TESTS", "OFF")
-        .define("GLFW_BUILD_DOCS", "OFF");
+        .define("GLFW_BUILD_DOCS", "OFF")
+        .define("CMAKE_INSTALL_LIBDIR", "lib");
+
     // x11/wayland work on all sorts of OSes.
     if features.os == TargetOs::Linux || features.os == TargetOs::Others {
         if features.wayland {
