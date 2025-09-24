@@ -36,12 +36,16 @@ fn main() {
     }
 
     let pkgconfig_build;
-    if features.prebuilt_libs {
+    if features.prebuilt_libs {  // prebuilt libs.
         pkgconfig_build = false;
         download_libs(features, &out_dir);
     }
-    else {
-        // try to use pkg-config first
+    else if features.src_build && features.static_link {  // compile and statically link.
+        pkgconfig_build = false;
+        #[cfg(feature = "src-build")]
+        build_from_src(features, &out_dir);
+    }
+    else {  // try to use pkg-config first and build on failure if enabled.
         // emits linker flags by default.
         match pkg_config::Config::new()
             .statik(features.static_link)
@@ -236,6 +240,7 @@ impl Default for Features {
 /// builds from source using cmake.
 /// The sources are included with this crate.
 /// feature-gated to make cmake crate optional.
+#[cfg(feature = "src-build")]
 fn build_from_src(features: Features, _out_dir: &str) {
     let mut config = cmake::Config::new("./glfw");
     config
