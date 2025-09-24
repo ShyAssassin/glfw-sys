@@ -226,7 +226,6 @@ impl Default for Features {
 /// builds from source using cmake.
 /// The sources are included with this crate.
 /// feature-gated to make cmake crate optional.
-#[cfg(feature = "src-build")]
 fn build_from_src(features: Features, _out_dir: &str) {
     let mut config = cmake::Config::new("./glfw");
     config
