@@ -37,14 +37,11 @@ fn main() {
 
     // not src build and not prebuilt-libs => use pkg-config
     let pkgconfig_build = !features.src_build && !features.prebuilt_libs;
-    if features.src_build {
-        // build from src, instead of using prebuilt-libraries.
-        #[cfg(feature = "src-build")]
-        build_from_src(features, &out_dir);
-    } else if features.prebuilt_libs {
+    if features.prebuilt_libs {
         download_libs(features, &out_dir);
-    } else {
-        assert!(pkgconfig_build);
+    }
+    else {
+        // try to use pkg-config first
         // emits linker flags by default.
         match pkg_config::Config::new()
             .statik(features.static_link)
@@ -52,10 +49,15 @@ fn main() {
             .probe("glfw3")
         {
             Ok(lib) => println!("pkg-config found glfw library {lib:#?}"),
-            Err(e) => build_from_src(features, &out_dir),
+            Err(e) => {
+                // on failure try to build if enabled
+                if features.src_build {
+                    #[cfg(feature = "src-build")]
+                    build_from_src(features, &out_dir);
+                }
+            }
         }
     }
-
     // pkg-config takes care of emitting linker flags, so we only explicitly
     // need to emit them if we aren't using pkg-config.
     if !pkgconfig_build {
