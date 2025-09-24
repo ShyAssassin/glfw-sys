@@ -72,7 +72,7 @@ fn main() {
         } else {
             match features.os {
                 TargetOs::Win => println!("cargo:rustc-link-lib=dylib=glfw3dll"),
-                _ => println!("cargo:rustc-link-lib=dylib=glfw3"),
+                _ => println!("cargo:rustc-link-lib=dylib=glfw"),
             }
         }
     }
