@@ -9,7 +9,7 @@ This library has two main purposes:
 
 
 For normal applications, you only need to care about 2 features:
-1. `src-build` - if you want to build from source. adds around 10 seconds of build time.
+1. `src-build` - if you want to build from source. adds around 10 seconds of build time. It will also build from source if pkg-config fails (then `static-link` also applies).
 2. `static-link` - if you want to link statically. On linux, this requires `src-build` too, so prefer dynamic linking during development for faster compile times. 
 
 ### Features
