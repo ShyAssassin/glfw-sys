@@ -42,7 +42,6 @@ fn main() {
     }
     else if features.src_build {  // build from source.
         pkgconfig_build = false;
-        #[cfg(feature = "src-build")]
         build_from_src(features, &out_dir);
     }
     else {  // try to use pkg-config first and build from source on failure.
