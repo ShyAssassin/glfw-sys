@@ -40,12 +40,12 @@ fn main() {
         pkgconfig_build = false;
         download_libs(features, &out_dir);
     }
-    else if features.src_build && features.static_link {  // compile and statically link.
+    else if features.src_build {  // build from source.
         pkgconfig_build = false;
         #[cfg(feature = "src-build")]
         build_from_src(features, &out_dir);
     }
-    else {  // try to use pkg-config first and build on failure if enabled.
+    else {  // try to use pkg-config first and build from source on failure.
         // emits linker flags by default.
         match pkg_config::Config::new()
             .statik(features.static_link)
@@ -57,15 +57,9 @@ fn main() {
                 pkgconfig_build = true;
             },
             Err(e) => {
-                // on failure try to build if enabled
+                // on failure try to build
                 pkgconfig_build = false;
-                if features.src_build {
-                    #[cfg(feature = "src-build")]
-                    build_from_src(features, &out_dir);
-                }
-                else {
-                    panic!("pkg-config failed to find glfw library: {e}");
-                }
+                build_from_src(features, &out_dir);
             }
         }
     }
@@ -240,7 +234,6 @@ impl Default for Features {
 /// builds from source using cmake.
 /// The sources are included with this crate.
 /// feature-gated to make cmake crate optional.
-#[cfg(feature = "src-build")]
 fn build_from_src(features: Features, _out_dir: &str) {
     let mut config = cmake::Config::new("./glfw");
     config
