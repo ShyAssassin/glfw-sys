@@ -256,9 +256,9 @@ fn build_from_src(features: Features, _out_dir: &str) {
         }
     }
     if features.static_link {
-        config.define("GLFW_LIBRARY_TYPE", "STATIC");
+        config.define("BUILD_SHARED_LIBS", "OFF");
     } else {
-        config.define("GLFW_LIBRARY_TYPE", "SHARED");
+        config.define("BUILD_SHARED_LIBS", "ON");
     }
     let dst_dir = config.build();
     println!(
