@@ -55,8 +55,9 @@ fn main() {
                 println!("pkg-config found glfw library {lib:#?}");
                 pkgconfig_build = true;
             },
-            Err(e) => {
+            Err(_) => {
                 // on failure try to build
+                println!("cargo::warning=Failed to link against system GLFW. GLFW will be built instead.");
                 pkgconfig_build = false;
                 build_from_src(features, &out_dir);
             }
