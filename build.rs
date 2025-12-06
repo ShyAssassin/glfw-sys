@@ -236,6 +236,8 @@ impl Default for Features {
 /// feature-gated to make cmake crate optional.
 fn build_from_src(features: Features, _out_dir: &str) {
     let mut config = cmake::Config::new("./glfw");
+    let lib_dir = std::env::current_dir().unwrap().join("glfw");
+    println!("cargo:THIRD_PARTY={}", lib_dir.display());
     config
         .define("GLFW_BUILD_EXAMPLES", "OFF")
         .define("GLFW_BUILD_TESTS", "OFF")
@@ -445,6 +447,7 @@ fn download_libs(features: Features, out_dir: &str) {
     );
     println!("extracted glfw library from zip and stored it in {out_dir:?}");
     let lib_dir = std::path::Path::new(out_dir).join(zip_name);
+    println!("cargo:THIRD_PARTY={}", lib_dir.display());
     match features.os {
         TargetOs::Win => {
             println!(
