@@ -18,7 +18,7 @@ default = ["all"]
 all = ["x11", "wayland", "native-handles", "native-gl", "native-egl", "vulkan"]
 bindgen = ["dep:bindgen"]
 # build from source, instead of using prebuilt libraries.
-src-build = ["dep:cmake"]
+src-build = []
 prebuilt-libs = []
 
 static-link = [] # static link (if on linux, src-build must also be enabled)
@@ -35,7 +35,7 @@ osmesa = []
 
 [build-dependencies]
 bindgen = { version = "0.71", optional = true }
-cmake = { version = "0.1", optional = true }
+cmake = "0.1"
 pkg-config = "0.3"
 
 [dev-dependencies]

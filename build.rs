@@ -35,24 +35,32 @@ fn main() {
         return;
     }
 
-    // not src build and not prebuilt-libs => use pkg-config
-    let pkgconfig_build = !features.src_build && !features.prebuilt_libs;
-    if features.src_build {
-        // build from src, instead of using prebuilt-libraries.
-        #[cfg(feature = "src-build")]
-        build_from_src(features, &out_dir);
-    } else if features.prebuilt_libs {
+    let pkgconfig_build;
+    if features.prebuilt_libs {  // prebuilt libs.
+        pkgconfig_build = false;
         download_libs(features, &out_dir);
-    } else {
-        assert!(pkgconfig_build);
+    }
+    else if features.src_build {  // build from source.
+        pkgconfig_build = false;
+        build_from_src(features, &out_dir);
+    }
+    else {  // try to use pkg-config first and build from source on failure.
         // emits linker flags by default.
         match pkg_config::Config::new()
             .statik(features.static_link)
             .atleast_version("3.4.0")
             .probe("glfw3")
         {
-            Ok(lib) => println!("pkg-config found glfw library {lib:#?}"),
-            Err(e) => panic!("pkg-config failed to find glfw library: {e}"),
+            Ok(lib) => {
+                println!("pkg-config found glfw library {lib:#?}");
+                pkgconfig_build = true;
+            },
+            Err(_) => {
+                // on failure try to build
+                println!("cargo::warning=Failed to link against system GLFW. GLFW will be built instead.");
+                pkgconfig_build = false;
+                build_from_src(features, &out_dir);
+            }
         }
     }
 
@@ -226,13 +234,14 @@ impl Default for Features {
 /// builds from source using cmake.
 /// The sources are included with this crate.
 /// feature-gated to make cmake crate optional.
-#[cfg(feature = "src-build")]
 fn build_from_src(features: Features, _out_dir: &str) {
     let mut config = cmake::Config::new("./glfw");
     config
         .define("GLFW_BUILD_EXAMPLES", "OFF")
         .define("GLFW_BUILD_TESTS", "OFF")
-        .define("GLFW_BUILD_DOCS", "OFF");
+        .define("GLFW_BUILD_DOCS", "OFF")
+        .define("CMAKE_INSTALL_LIBDIR", "lib");
+
     // x11/wayland work on all sorts of OSes.
     if features.os == TargetOs::Linux || features.os == TargetOs::Others {
         if features.wayland {
