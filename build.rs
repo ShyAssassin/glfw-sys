@@ -36,15 +36,13 @@ fn main() {
     }
 
     let pkgconfig_build;
-    if features.prebuilt_libs {  // prebuilt libs.
-        pkgconfig_build = false;
-        download_libs(features, &out_dir);
-    }
-    else if features.src_build {  // build from source.
+    if features.src_build {
         pkgconfig_build = false;
         build_from_src(features, &out_dir);
-    }
-    else {  // try to use pkg-config first and build from source on failure.
+    } else if features.prebuilt_libs {
+        pkgconfig_build = false;
+        download_libs(features, &out_dir);
+    } else {  // try to use pkg-config first and build from source on failure.
         // emits linker flags by default.
         match pkg_config::Config::new()
             .statik(!features.dynamic_link)
@@ -226,8 +224,10 @@ impl Default for Features {
             gl: cfg!(feature = "native-gl"),
             src_build: cfg!(feature = "src-build"),
             // this feature only works on windows and mac
+            // Don't enable prebuilt_libs if src_build is explicitly requested
             prebuilt_libs: cfg!(feature = "prebuilt-libs")
-                && (os == TargetOs::Win || os == TargetOs::Mac),
+                && (os == TargetOs::Win || os == TargetOs::Mac)
+                && !cfg!(feature = "src-build"),
         }
     }
 }

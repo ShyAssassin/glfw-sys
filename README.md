@@ -21,7 +21,7 @@ For normal applications, you only need to care about 2 features:
 - `dynamic-link` - dynamically link glfw (creates runtime dependency). If disabled, we will statically link glfw
 
 We try to build glfw in this order:
-- `src-build` - If enabled, build glfw from source (sources are included with crate). Ensure `cmake` is installed and any other required dependencies.
+- `src-build` - If enabled, build glfw from source (sources are included with crate). Ensure `cmake` is installed and any other required dependencies. **This takes priority over `prebuilt-libs` if both are enabled.**
 - `prebuilt-libs` (only for windows/macos. ignored on other platforms) - If enabled, we download and link pre-built glfw libs from <https://github.com/glfw/glfw/releases/>.
 
 > NOTE: We use curl + tar (unzip on macos) to download and extract pre-built libs. mac/win10+ will have these by default.
