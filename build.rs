@@ -450,10 +450,18 @@ fn download_libs(features: Features, out_dir: &str) {
     println!("cargo:THIRD_PARTY={}", lib_dir.display());
     match features.os {
         TargetOs::Win => {
-            println!(
-                "cargo:rustc-link-search=native={}",
-                lib_dir.join("lib-vc2022").display()
-            );
+            // Default to mingw libs for gnu targets and vc2022 for msvc
+            if std::env::var("CARGO_CFG_TARGET_ENV").unwrap() == "gnu" {
+                println!(
+                    "cargo:rustc-link-search=native={}",
+                    lib_dir.join("lib-mingw-w64").display()
+                );
+            } else {
+                println!(
+                    "cargo:rustc-link-search=native={}",
+                    lib_dir.join("lib-vc2022").display()
+                );
+            }
         }
         TargetOs::Mac => {
             let lib_dir = lib_dir.join("lib-universal");
